@@ -3,6 +3,32 @@
 
 using namespace std;
 
+int wt[100], val[100], n, W, best = 0;
+
+double bound(int i, int weight, int profit) {
+    double b = profit;
+    while (i < n && weight < W) {
+        if (weight + wt[i] <= W) {
+            weight += wt[i];
+            b += val[i];
+        } else {
+            b += (W - weight) * 1.0 * val[i] / wt[i];
+            break;
+        }
+        i++;
+    }
+    return b;
+}
+
+void knapsackBB(int i, int weight, int profit) {
+    if (weight > W) return;
+    if (i == n) { best = max(best, profit); return; }
+    if (bound(i, weight, profit) <= best) return;
+
+    knapsackBB(i + 1, weight + wt[i], profit + val[i]);
+    knapsackBB(i + 1, weight, profit);
+}
+
 int main() {
     int n, W;
     
