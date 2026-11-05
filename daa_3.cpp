@@ -1,45 +1,27 @@
+#include <assert.h>
 #include <iostream>
 #include <vector>
 
 using namespace std;
 
-int wt[100], val[100], n, W, best = 0;
+#define MAX_N 100
 
-double bound(int i, int weight, int profit) {
-    double b = profit;
-    while (i < n && weight < W) {
-        if (weight + wt[i] <= W) {
-            weight += wt[i];
-            b += val[i];
-        } else {
-            b += (W - weight) * 1.0 * val[i] / wt[i];
-            break;
-        }
-        i++;
-    }
-    return b;
-}
+int wt[MAX_N], val[MAX_N], n, W, best = 0;
 
-void knapsackBB(int i, int weight, int profit) {
+void BB_knapsack(int i, int weight, int profit) {
     if (weight > W) return;
-    if (i == n) { best = max(best, profit); return; }
-    if (bound(i, weight, profit) <= best) return;
 
-    knapsackBB(i + 1, weight + wt[i], profit + val[i]);
-    knapsackBB(i + 1, weight, profit);
+    if (i == n) {
+        best = max(best, profit);
+    } else {
+        BB_knapsack(i + 1, weight + wt[i+1], profit + val[i+1]); /*Pick*/
+        BB_knapsack(i + 1, weight, profit); /*Dont pick*/
+    }
 }
 
-int main() {
-    int n, W;
-    
-    cout << "Enter knapsack capacity and item count: ";
-    cin >> W >> n;
-
-    int wt[n], val[n];
+void DP_knapsack()
+{
     vector<int> dp(W + 1, 0); // dp[weight] = max possible value
-
-    cout << "Enter weights & values of items:\n";
-    for (int i = 0; i < n; i++) cin >> wt[i] >> val[i];
 
     for (int i = 0; i < n; i++) { // last item index
         for (int w = W; w >= wt[i]; w--) { // weight capacity
@@ -47,7 +29,21 @@ int main() {
         }
     }
 
-    cout << "Maximum value = " << dp[W] << endl;
+    return dp[W];
+}
+
+int main() {
+    cout << "Enter knapsack capacity and item count: ";
+    cin >> W >> n;
+    assert(n <= MAX_N && "Choose a smaller 'n' value!");
+
+    cout << "Enter weights & values of items:\n";
+    for (int i = 0; i < n; i++) cin >> wt[i] >> val[i];
+
+    cout << "Maximum value = " << DP_knapsack() << endl;
+
+    BB_knapsack(0,0,0);
+    cout << "\n BB & Maximum value = " << best << endl;
 
     return 0;
 }
